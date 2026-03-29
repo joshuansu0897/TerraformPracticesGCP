@@ -16,5 +16,4 @@ In this project, we will create a two-tier application using Google Cloud's **Ma
 - Both the `frontend MIG` and `backend MIG` will be configured to automatically scale based on the load. We will set up `auto-scaling` policies that will add or remove instances based on `CPU utilization` or incoming traffic. This will ensure that our application can handle varying levels of traffic without manual intervention.
 
 # Diagram
-Here is a high-level diagram of the architecture:
 TODO
