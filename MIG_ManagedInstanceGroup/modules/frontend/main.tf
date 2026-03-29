@@ -40,6 +40,26 @@ resource "google_compute_region_instance_group_manager" "frontend_mig" {
     name = "http"
     port = 80
   }
+
+  auto_healing_policies {
+    health_check      = google_compute_region_health_check.autohealing.id
+    initial_delay_sec = 300
+  }
+}
+
+# Autohealing Health Check
+resource "google_compute_region_health_check" "autohealing" {
+  name                = "frontend-autohealing-hc"
+  region              = var.region
+  check_interval_sec  = 10
+  timeout_sec         = 5
+  healthy_threshold   = 2
+  unhealthy_threshold = 3
+
+  http_health_check {
+    port         = 80
+    request_path = "/"
+  }
 }
 
 # Frontend Autoscaler
