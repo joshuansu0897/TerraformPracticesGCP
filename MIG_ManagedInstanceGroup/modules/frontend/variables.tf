@@ -19,7 +19,6 @@ variable "machine_type" {
   description = "Machine type for frontend instances"
 }
 
-
 variable "min_replicas" {
   type        = number
   default     = 2

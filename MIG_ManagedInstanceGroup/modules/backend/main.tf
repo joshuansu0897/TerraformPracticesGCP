@@ -102,6 +102,6 @@ resource "google_compute_firewall" "allow_frontend_to_backend" {
     ports    = ["80"]
   }
 
-  source_ranges = [var.frontend_subnet_cidr]
-  target_tags   = ["backend-mig"]
+  source_tags = var.frontend_tags
+  target_tags = ["backend-mig"]
 }

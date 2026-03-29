@@ -30,24 +30,11 @@ resource "google_project_service" "compute_api" {
 
 # Module for creating the VPC network and Subnets
 module "vpc" {
-  source               = "./modules/vpc"
-  project_id           = var.project_id
-  region               = var.region
-  frontend_subnet_cidr = var.frontend_subnet_cidr
-  backend_subnet_cidr  = var.backend_subnet_cidr
+  source     = "./modules/vpc"
+  project_id = var.project_id
+  region     = var.region
 
   depends_on = [google_project_service.compute_api]
-}
-
-# Module for Backend MIG
-module "backend" {
-  source               = "./modules/backend"
-  region               = var.region
-  vpc_id               = module.vpc.vpc_main_id
-  subnet_id            = module.vpc.backend_subnet
-  frontend_subnet_cidr = var.frontend_subnet_cidr
-
-  depends_on = [module.vpc]
 }
 
 # Module for Frontend MIG
@@ -58,6 +45,17 @@ module "frontend" {
   subnet_id = module.vpc.frontend_subnet
 
   depends_on = [module.vpc]
+}
+
+# Module for Backend MIG
+module "backend" {
+  source        = "./modules/backend"
+  region        = var.region
+  vpc_id        = module.vpc.vpc_main_id
+  subnet_id     = module.vpc.backend_subnet
+  frontend_tags = module.frontend.tags
+
+  depends_on = [module.vpc, module.frontend]
 }
 
 # Module for Load Balancing

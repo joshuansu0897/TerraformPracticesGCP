@@ -13,9 +13,9 @@ variable "subnet_id" {
   description = "The ID of the subnet for backend instances"
 }
 
-variable "frontend_subnet_cidr" {
-  type        = string
-  description = "The CIDR block of the frontend subnet to allow access"
+variable "frontend_tags" {
+  type        = list(string)
+  description = "The tags of the frontend MIG."
 }
 
 variable "machine_type" {

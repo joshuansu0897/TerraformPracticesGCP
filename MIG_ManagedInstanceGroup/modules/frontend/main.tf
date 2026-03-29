@@ -13,7 +13,6 @@ resource "google_compute_instance_template" "frontend_template" {
   network_interface {
     network    = var.vpc_id
     subnetwork = var.subnet_id
-    # Ensure frontend instances don't get public IPs (we use Global LB instead)
   }
 
   metadata_startup_script = file("${path.module}/startup.sh")
