@@ -46,15 +46,17 @@ module "backend" {
   vpc_id               = module.vpc.vpc_main_id
   subnet_id            = module.vpc.backend_subnet
   frontend_subnet_cidr = var.frontend_subnet_cidr
-  depends_on           = [module.vpc]
+
+  depends_on = [module.vpc]
 }
 
 # Module for Frontend MIG
 module "frontend" {
-  source     = "./modules/frontend"
-  region     = var.region
-  vpc_id     = module.vpc.vpc_main_id
-  subnet_id  = module.vpc.frontend_subnet
+  source    = "./modules/frontend"
+  region    = var.region
+  vpc_id    = module.vpc.vpc_main_id
+  subnet_id = module.vpc.frontend_subnet
+
   depends_on = [module.vpc]
 }
 
