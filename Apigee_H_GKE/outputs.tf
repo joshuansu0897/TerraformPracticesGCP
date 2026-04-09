@@ -33,3 +33,22 @@ output "apigee_service_accounts" {
   value       = module.iam.service_accounts
 }
 
+output "apigee_org_id" {
+  description = "The ID of the Apigee organization"
+  value       = module.apigee.org_id
+}
+
+output "apigee_env_group" {
+  description = "The ID of the Apigee Environment Group"
+  value       = module.apigee.envgroup_id
+}
+
+output "apigee_env_region_1" {
+  description = "Name of the Region 1 Apigee environment"
+  value       = module.apigee.env_region_1_name
+}
+
+output "apigee_env_region_2" {
+  description = "Name of the Region 2 Apigee environment"
+  value       = module.apigee.env_region_2_name
+}

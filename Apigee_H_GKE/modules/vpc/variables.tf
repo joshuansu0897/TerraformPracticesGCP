@@ -12,13 +12,11 @@ variable "network_name" {
 variable "region_1" {
   description = "The first region for the Apigee cluster"
   type        = string
-  default     = "us-west1"
 }
 
 variable "region_2" {
   description = "The second region for the Apigee cluster"
   type        = string
-  default     = "us-central1"
 }
 
 variable "subnet_1_cidr" {

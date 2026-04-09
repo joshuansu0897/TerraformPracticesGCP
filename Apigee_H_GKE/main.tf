@@ -32,6 +32,13 @@ resource "google_project_service" "gke_api" {
   disable_on_destroy = false
 }
 
+# Enable Apigee API
+resource "google_project_service" "apigee_api" {
+  project            = var.project_id
+  service            = "apigee.googleapis.com"
+  disable_on_destroy = false
+}
+
 ############
 ## Modules
 ############
@@ -50,7 +57,7 @@ module "vpc" {
 module "gke_region_1" {
   source                 = "./modules/gke"
   project_id             = var.project_id
-  cluster_name           = "apigee-cluster-west"
+  cluster_name           = "apigee-cluster-${var.region_1}"
   region                 = var.region_1
   network_id             = module.vpc.network_id
   subnet_id              = module.vpc.subnet_1_id
@@ -66,7 +73,7 @@ module "gke_region_1" {
 module "gke_region_2" {
   source                 = "./modules/gke"
   project_id             = var.project_id
-  cluster_name           = "apigee-cluster-east"
+  cluster_name           = "apigee-cluster-${var.region_2}"
   region                 = var.region_2
   network_id             = module.vpc.network_id
   subnet_id              = module.vpc.subnet_2_id
@@ -86,4 +93,15 @@ module "iam" {
 
   # Wait for at least one GKE cluster to create the Workload Identity Pool
   depends_on = [module.gke_region_1, module.gke_region_2]
+}
+
+# Module for Apigee Control Plane Config
+module "apigee" {
+  source           = "./modules/apigee"
+  project_id       = var.project_id
+  analytics_region = var.region_1
+  region_1         = var.region_1
+  region_2         = var.region_2
+
+  depends_on = [google_project_service.apigee_api]
 }
