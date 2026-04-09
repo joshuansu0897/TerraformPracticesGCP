@@ -69,7 +69,8 @@ module "gke_region_2" {
   subnet_id              = module.vpc.subnet_2_id
   master_ipv4_cidr_block = var.gke_master_ipv4_cidr_2
 
-  depends_on = [module.vpc]
+  # Wait for region 1 to finish completely to avoid simultaneous CPU quota limits
+  depends_on = [module.vpc, module.gke_region_1]
 }
 
 # Module for Service Accounts and IAM Bindings (Workload Identity)
