@@ -56,6 +56,9 @@ module "gke_region_1" {
   subnet_id              = module.vpc.subnet_1_id
   master_ipv4_cidr_block = var.gke_master_ipv4_cidr_1
 
+  node_locations      = ["${var.region_1}-a", "${var.region_1}-b"]
+  node_count_per_zone = 1
+
   depends_on = [module.vpc]
 }
 
@@ -69,8 +72,10 @@ module "gke_region_2" {
   subnet_id              = module.vpc.subnet_2_id
   master_ipv4_cidr_block = var.gke_master_ipv4_cidr_2
 
-  # Wait for region 1 to finish completely to avoid simultaneous CPU quota limits
-  depends_on = [module.vpc, module.gke_region_1]
+  node_locations      = ["${var.region_2}-a", "${var.region_2}-b"]
+  node_count_per_zone = 1
+
+  depends_on = [module.vpc]
 }
 
 # Module for Service Accounts and IAM Bindings (Workload Identity)
@@ -78,7 +83,7 @@ module "iam" {
   source     = "./modules/iam"
   project_id = var.project_id
   namespace  = "apigee" # Default Apigee namespace
-  
+
   # Wait for at least one GKE cluster to create the Workload Identity Pool
   depends_on = [module.gke_region_1, module.gke_region_2]
 }

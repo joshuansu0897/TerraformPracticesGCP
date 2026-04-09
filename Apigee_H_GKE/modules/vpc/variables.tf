@@ -18,7 +18,7 @@ variable "region_1" {
 variable "region_2" {
   description = "The second region for the Apigee cluster"
   type        = string
-  default     = "us-east1"
+  default     = "us-central1"
 }
 
 variable "subnet_1_cidr" {

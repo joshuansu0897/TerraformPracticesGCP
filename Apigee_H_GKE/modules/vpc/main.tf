@@ -29,7 +29,7 @@ resource "google_compute_firewall" "allow_cassandra_inter_region" {
   name    = "${var.network_name}-allow-cassandra"
   project = var.project_id
   network = google_compute_network.apigee_vpc.name
-  
+
   description = "Allow inter-region Cassandra communication for Apigee hybrid nodes"
 
   allow {
