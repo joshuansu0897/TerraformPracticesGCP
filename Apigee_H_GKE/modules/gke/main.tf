@@ -9,6 +9,9 @@ resource "google_container_cluster" "primary" {
   # node pool and immediately delete it.
   remove_default_node_pool = true
   initial_node_count       = 1
+  
+  # Allow Terraform to delete clusters if recreation is necessary or upon teardown
+  deletion_protection = false
 
   # Ensure VPC-native cluster (alias IPs enabled), standard for modern GKE and required by Apigee
   ip_allocation_policy {
@@ -32,8 +35,10 @@ resource "google_container_node_pool" "apigee_nodes" {
   cluster    = google_container_cluster.primary.name
   location   = var.region
   
-  # Minimum of 3 nodes as requested
-  node_count = 3
+  # Since this is a regional cluster (spanning 3 zones usually),
+  # 'node_count' specifies the nodes PER ZONE. 
+  # node_count = 1 will result in exactly 3 nodes total per cluster, which fits our limits.
+  node_count = 1
 
   node_config {
     machine_type = "e2-standard-4"
@@ -67,11 +72,7 @@ resource "null_resource" "install_cert_manager" {
       gcloud container clusters get-credentials ${google_container_cluster.primary.name} --region ${var.region} --project ${var.project_id}
       helm repo add jetstack https://charts.jetstack.io
       helm repo update
-      helm upgrade --install cert-manager jetstack/cert-manager \
-        --namespace cert-manager \
-        --create-namespace \
-        --version v1.12.0 \
-        --set installCRDs=true
+      helm upgrade --install cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --version v1.12.0 --set installCRDs=true
     EOT
   }
 }
