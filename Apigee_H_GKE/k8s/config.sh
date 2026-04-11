@@ -25,3 +25,5 @@ export ENV_NAME_2="prod-${REGION_2}"
 export HELM_DIR="./helm"
 export CHART_VERSION="1.14.3"
 export CHART_REPO="oci://us-docker.pkg.dev/apigee-release/apigee-hybrid-helm-charts"
+
+export CERT_MANAGER_VERSION="v1.15.1"
