@@ -3,6 +3,12 @@ variable "project_id" {
   type        = string
 }
 
+variable "domain_name" {
+  description = "The domain name"
+  type        = string
+  default     = "joshuansu.xyz"
+}
+
 variable "region_1" {
   description = "The first region for the Apigee cluster"
   type        = string

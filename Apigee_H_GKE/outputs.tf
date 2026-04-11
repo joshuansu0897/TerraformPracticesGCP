@@ -52,3 +52,8 @@ output "apigee_env_region_2" {
   description = "Name of the Region 2 Apigee environment"
   value       = module.apigee.env_region_2_name
 }
+
+output "dns_nameservers" {
+  description = "The nameservers for the public DNS zone"
+  value       = module.dns.name_servers
+}

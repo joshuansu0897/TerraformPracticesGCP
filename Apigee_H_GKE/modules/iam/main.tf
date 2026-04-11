@@ -1,11 +1,17 @@
 locals {
   service_accounts = {
-    "apigee-logger"       = { role = "roles/logging.logWriter", ksa = "apigee-logger" }
-    "apigee-metrics"      = { role = "roles/monitoring.metricWriter", ksa = "apigee-metrics" }
-    "apigee-cassandra"    = { role = "roles/storage.objectAdmin", ksa = "apigee-cassandra" }
-    "apigee-mart"         = { role = "roles/apigeeconnect.Agent", ksa = "apigee-mart" }
-    "apigee-udca"         = { role = "roles/apigee.analyticsAgent", ksa = "apigee-udca" }
-    "apigee-synchronizer" = { role = "roles/apigee.synchronizerManager", ksa = "apigee-synchronizer" }
+    "apigee-logger"       = { role = "roles/logging.logWriter",  ksa = "apigee-logger",      dir = "apigee-telemetry" }
+    "apigee-metrics"      = { role = "roles/monitoring.metricWriter", ksa = "apigee-metrics", dir = "apigee-telemetry" }
+    "apigee-cassandra"    = { role = "roles/storage.objectAdmin", ksa = "apigee-cassandra",  dir = "apigee-datastore" }
+    "apigee-mart"         = { role = "roles/apigeeconnect.Agent", ksa = "apigee-mart",       dir = "apigee-org" }
+    "apigee-udca"         = { role = "roles/apigee.analyticsAgent", ksa = "apigee-udca",     dir = "apigee-org" }
+    "apigee-synchronizer" = { role = "roles/apigee.synchronizerManager", ksa = "apigee-synchronizer", dir = "apigee-env" }
+    "apigee-watcher"      = { role = "roles/apigee.runtimeAgent", ksa = "apigee-watcher",    dir = "apigee-org" }
+    "apigee-runtime"      = { role = null,                         ksa = "apigee-runtime",    dir = "apigee-env" }
+  }
+
+  sa_roles = {
+    for k, v in local.service_accounts : k => v if v.role != null
   }
 }
 
@@ -19,20 +25,31 @@ resource "google_service_account" "apigee_sa" {
 
 # Assign Project IAM Roles
 resource "google_project_iam_member" "apigee_sa_role" {
-  for_each = local.service_accounts
+  for_each = local.sa_roles
   project  = var.project_id
   role     = each.value.role
   member   = "serviceAccount:${google_service_account.apigee_sa[each.key].email}"
 }
 
 # Bind GSA to KSA via Workload Identity
-# This creates the IAM binding allowing the Kubernetes service account to impersonate the GSA
 resource "google_service_account_iam_member" "workload_identity_binding" {
   for_each           = local.service_accounts
   service_account_id = google_service_account.apigee_sa[each.key].name
   role               = "roles/iam.workloadIdentityUser"
 
   # The Workload Identity member pattern:
-  # serviceAccount:PROJECT_ID.svc.id.goog[NAMESPACE/KSA_NAME]
   member = "serviceAccount:${var.project_id}.svc.id.goog[${var.namespace}/${each.value.ksa}]"
+}
+
+# Create JSON Keys
+resource "google_service_account_key" "keys" {
+  for_each           = local.service_accounts
+  service_account_id = google_service_account.apigee_sa[each.key].name
+}
+
+# Dump JSON Keys to k8s/credentials directory (separate from helm charts)
+resource "local_file" "sa_keys" {
+  for_each = local.service_accounts
+  content  = base64decode(google_service_account_key.keys[each.key].private_key)
+  filename = "${path.module}/../../k8s/credentials/${var.project_id}-${each.key}.json"
 }

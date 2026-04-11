@@ -4,6 +4,8 @@
 export CHART_REPO=oci://us-docker.pkg.dev/apigee-release/apigee-hybrid-helm-charts
 export CHART_VERSION=1.14.0
 export ENV_GROUP=prod-envgroup
+export ORG=my-default-project-483019
+export ENV=prod-us-central1 or prod-us-west1
 
 ####
 
@@ -25,23 +27,23 @@ chmod a+x ./apigee-operator/etc/tools/create-service-account
 ####
 
 # To create each service account, run the tool and provide the Apigee hybrid runtime component profile, and directory location to store the certificate file of each service account:
-./apigee-operator/etc/tools/create-service-account --profile apigee-cassandra --env prod --dir ./apigee-datastore
-./apigee-operator/etc/tools/create-service-account --profile apigee-logger --env prod --dir ./apigee-telemetry
-./apigee-operator/etc/tools/create-service-account --profile apigee-mart --env prod --dir ./apigee-org
-./apigee-operator/etc/tools/create-service-account --profile apigee-metrics --env prod --dir ./apigee-telemetry
+# ./apigee-operator/etc/tools/create-service-account --profile apigee-cassandra --env prod --dir ./apigee-datastore
+# ./apigee-operator/etc/tools/create-service-account --profile apigee-logger --env prod --dir ./apigee-telemetry
+# ./apigee-operator/etc/tools/create-service-account --profile apigee-mart --env prod --dir ./apigee-org
+# ./apigee-operator/etc/tools/create-service-account --profile apigee-metrics --env prod --dir ./apigee-telemetry
 
 ####
 
 # Create service accounts from the remaining Apigee hybrid components:
-./apigee-operator/etc/tools/create-service-account --profile apigee-runtime --env prod --dir ./apigee-env
-./apigee-operator/etc/tools/create-service-account --profile apigee-synchronizer --env prod --dir ./apigee-env
-./apigee-operator/etc/tools/create-service-account --profile apigee-udca --env prod --dir ./apigee-org
-./apigee-operator/etc/tools/create-service-account --profile apigee-watcher --env prod --dir ./apigee-org
+# ./apigee-operator/etc/tools/create-service-account --profile apigee-runtime --env prod --dir ./apigee-env
+# ./apigee-operator/etc/tools/create-service-account --profile apigee-synchronizer --env prod --dir ./apigee-env
+# ./apigee-operator/etc/tools/create-service-account --profile apigee-udca --env prod --dir ./apigee-org
+# ./apigee-operator/etc/tools/create-service-account --profile apigee-watcher --env prod --dir ./apigee-org
 
 ####
 
 # Because the apigee-udca service account is needed for both organization-scope and environment-scope operations, copy the component's service account certificate file to the apigee-env chart directory:
-cp ./apigee-org/${PROJECT_ID}-apigee-udca.json ./apigee-env
+# cp ./apigee-org/my-default-project-483019-apigee-udca.json ./apigee-env
 
 ####
 
@@ -56,16 +58,16 @@ mkdir ./apigee-virtualhost/certs
 ####
 
 # Execute the command to create the TLS credentials (certificate and key files), and store them in your $APIGEE_HELM_CHARTS/apigee-virtualhost/certs directory:
-openssl req -nodes -new -x509 -keyout ./apigee-virtualhost/certs/key-$ENV_GROUP.pem -out \
-./apigee-virtualhost/certs/cert-$ENV_GROUP.pem -subj "/CN=${ORG}-${ENV}.hybrid-apigee.net"
+# openssl req -nodes -new -x509 -keyout ./apigee-virtualhost/certs/key-prod-envgroup.pem -out \
+# ./apigee-virtualhost/certs/cert-prod-envgroup.pem -subj "/CN=my-default-project-483019-prod-us-west1.hybrid-apigee.net"
 
 ####
 
 # Inspect the details of the certificate:
-sudo openssl x509 -in ./apigee-virtualhost/certs/cert-$ENV_GROUP.pem -text -noout | grep "CN"
+sudo openssl x509 -in ./apigee-virtualhost/certs/cert-prod-envgroup.pem -text -noout | grep "CN"
 
 ####
 
 # Verify that the certificate is valid:
-sudo openssl x509 -in ./apigee-virtualhost/certs/cert-$ENV_GROUP.pem -text -noout | grep "Not"
+sudo openssl x509 -in ./apigee-virtualhost/certs/cert-prod-envgroup.pem -text -noout | grep "Not"
 
