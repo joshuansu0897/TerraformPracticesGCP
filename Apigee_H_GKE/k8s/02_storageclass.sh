@@ -5,9 +5,9 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/config.sh"
 
 echo "=== Bootstrapping Apigee prerequisites in ${CLUSTER_1} ==="
-# Fetch credentials for region 1
-gcloud container clusters get-credentials ${CLUSTER_1} --region ${REGION_1} --project ${PROJECT_ID}
 
+kubectl config use-context "$CONTEXT_1"
+  
 # Create StorageClass YAML
 cat <<EOF > ./storageclass.yaml
 ---
@@ -34,8 +34,8 @@ kubectl apply --validate=false -f https://github.com/cert-manager/cert-manager/r
 echo ""
 
 echo "=== Bootstrapping Apigee prerequisites in ${CLUSTER_2} ==="
-# Fetch credentials for region 2
-gcloud container clusters get-credentials ${CLUSTER_2} --region ${REGION_2} --project ${PROJECT_ID}
+
+kubectl config use-context "$CONTEXT_2"
 
 # Apply StorageClass and set as default
 kubectl apply -f ./storageclass.yaml
@@ -45,4 +45,4 @@ kubectl patch storageclass apigee-sc -p '{"metadata": {"annotations":{"storagecl
 # Install cert-manager
 kubectl apply --validate=false -f https://github.com/cert-manager/cert-manager/releases/download/${CERT_MANAGER_VERSION}/cert-manager.yaml
 
-echo "Done! task 6 constraints implemented successfully across both clusters."
+echo "Done! storage class and cert-manager setup completed in both clusters."
